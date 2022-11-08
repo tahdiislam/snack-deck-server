@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -21,13 +21,10 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const Services = client.db("Snackdeckdb").collection("services");
+    const Reviews = client.db("Snackdeckdb").collection("reviews");
     app.get("/services", async (req, res) => {
       const dataLimit = parseInt(req.query.limit);
-
       const cursor = Services.find({});
-      // const result = await cursor.limit(dataLimit).toArray()
-      // res.send({result})
-      // let
       if (dataLimit) {
         const storedServices = await cursor.limit(dataLimit).toArray();
         res.send({ storedServices });
@@ -36,10 +33,28 @@ async function run() {
         res.send({ storedServices });
       }
     });
+
+    // get specific service 
+    app.get("/services/:id",async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+      const service = await Services.findOne(query)
+      res.send({ service });
+    })
+
+
+    // services post method
     app.post("/services", async (req, res) => {
       const service = req.body;
       const result = await Services.insertOne(service);
       res.status(200).send({ result });
+    });
+
+    // review post method 
+    app.post("/reviews", async(req, res) => {
+      const review = req.body;
+      const result = await Reviews.insertOne(review)
+      res.send({result})
     });
   } finally {
   }
