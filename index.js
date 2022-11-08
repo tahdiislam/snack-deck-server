@@ -42,6 +42,16 @@ async function run() {
       res.send({ service });
     })
 
+    // get all reviews 
+    app.get("/reviews/:id", async (req, res) =>{
+      const id = req.params.id
+      const query = { food_id : id};
+      const sort = {date: -1}
+      const cursor = Reviews.find(query)
+      const result = await cursor.sort(sort).toArray();
+      // const result = await cursor.toArray()
+      res.send({result})
+    });
 
     // services post method
     app.post("/services", async (req, res) => {
