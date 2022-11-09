@@ -22,6 +22,8 @@ async function run() {
   try {
     const Services = client.db("Snackdeckdb").collection("services");
     const Reviews = client.db("Snackdeckdb").collection("reviews");
+
+    // get all services with link and no limit
     app.get("/services", async (req, res) => {
       const dataLimit = parseInt(req.query.limit);
       const cursor = Services.find({});
@@ -34,23 +36,32 @@ async function run() {
       }
     });
 
-    // get specific service 
-    app.get("/services/:id",async (req, res) => {
+    // get specific service
+    app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)}
-      const service = await Services.findOne(query)
+      const query = { _id: ObjectId(id) };
+      const service = await Services.findOne(query);
       res.send({ service });
-    })
+    });
 
-    // get all reviews 
-    app.get("/reviews/:id", async (req, res) =>{
-      const id = req.params.id
-      const query = { food_id : id};
-      const sort = {date: -1}
-      const cursor = Reviews.find(query)
+    // get reviews by service id
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { food_id: id };
+      const sort = { date: -1 };
+      const cursor = Reviews.find(query);
       const result = await cursor.sort(sort).toArray();
       // const result = await cursor.toArray()
-      res.send({result})
+      res.send({ result });
+    });
+
+    // get reviews by email
+    app.get("/reviews", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = Reviews.find(query);
+      const result = await cursor.toArray();
+      res.send({ result });
     });
 
     // services post method
@@ -60,11 +71,11 @@ async function run() {
       res.status(200).send({ result });
     });
 
-    // review post method 
-    app.post("/reviews", async(req, res) => {
+    // review post method
+    app.post("/reviews", async (req, res) => {
       const review = req.body;
-      const result = await Reviews.insertOne(review)
-      res.send({result})
+      const result = await Reviews.insertOne(review);
+      res.send({ result });
     });
   } finally {
   }
