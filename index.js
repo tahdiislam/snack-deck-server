@@ -67,8 +67,9 @@ async function run() {
     // get limited review 
     app.get("/limitedReviews", async(req, res) => {
       const reviewLimit = parseInt(req.query.limit);
+      const sort = {date: -1}
       const cursor = Reviews.find({});
-      const result = await cursor.limit(reviewLimit).toArray()
+      const result = await cursor.sort(sort).limit(reviewLimit).toArray()
       res.send({result})
     })
 
