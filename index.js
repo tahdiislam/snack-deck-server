@@ -40,6 +40,7 @@ async function run() {
   try {
     const Services = client.db("Snackdeckdb").collection("services");
     const Reviews = client.db("Snackdeckdb").collection("reviews");
+    const Blogs = client.db("Snackdeckdb").collection("blogs");
 
     // get all services with link and no limit
     app.get("/services", async (req, res) => {
@@ -61,6 +62,13 @@ async function run() {
       const service = await Services.findOne(query);
       res.send({ service });
     });
+
+    // get all blogs
+    app.get("/blogs", async(req, res) => {
+      const cursor = Blogs.find({})
+      const result = await cursor.toArray()
+      res.send({result})
+    })
 
     // get reviews by service id
     app.get("/reviews/:id", async (req, res) => {
