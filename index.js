@@ -46,11 +46,12 @@ async function run() {
     app.get("/services", async (req, res) => {
       const dataLimit = parseInt(req.query.limit);
       const cursor = Services.find({});
+      const sort = { date : -1};
       if (dataLimit) {
-        const storedServices = await cursor.limit(dataLimit).toArray();
+        const storedServices = await cursor.sort(sort).limit(dataLimit).toArray();
         res.send({ storedServices });
       } else {
-        const storedServices = await cursor.toArray();
+        const storedServices = await cursor.sort(sort).toArray();
         res.send({ storedServices });
       }
     });
