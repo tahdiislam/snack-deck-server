@@ -64,6 +64,14 @@ async function run() {
       res.send({ result });
     });
 
+    // get limited review 
+    app.get("/limitedReviews", async(req, res) => {
+      const reviewLimit = parseInt(req.query.limit);
+      const cursor = Reviews.find({});
+      const result = await cursor.limit(reviewLimit).toArray()
+      res.send({result})
+    })
+
     // services post method
     app.post("/services", async (req, res) => {
       const service = req.body;
@@ -79,7 +87,7 @@ async function run() {
     });
 
     // update review
-    app.put("/reviews/:id", async(req, res) => {
+    app.put("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const editedReview = req.body.updatedReviewText;
       const filter = { _id: ObjectId(id) };
@@ -89,8 +97,8 @@ async function run() {
           reviewText: editedReview,
         },
       };
-      const result = await Reviews.updateOne(filter, updatedReview, option)
-      res.send({result})
+      const result = await Reviews.updateOne(filter, updatedReview, option);
+      res.send({ result });
     });
 
     // delete specific review
