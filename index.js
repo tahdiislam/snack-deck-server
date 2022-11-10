@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
@@ -17,6 +18,8 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+
 
 async function run() {
   try {
@@ -56,7 +59,7 @@ async function run() {
     });
 
     // get reviews by email
-    app.get("/reviews", async (req, res) => {
+    app.get("/reviews", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const cursor = Reviews.find(query);
@@ -64,14 +67,23 @@ async function run() {
       res.send({ result });
     });
 
-    // get limited review 
-    app.get("/limitedReviews", async(req, res) => {
+    // get limited review
+    app.get("/limitedReviews", async (req, res) => {
       const reviewLimit = parseInt(req.query.limit);
-      const sort = {date: -1}
+      const sort = { date: -1 };
       const cursor = Reviews.find({});
-      const result = await cursor.sort(sort).limit(reviewLimit).toArray()
-      res.send({result})
-    })
+      const result = await cursor.sort(sort).limit(reviewLimit).toArray();
+      res.send({ result });
+    });
+
+    // give user a access token
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.status(200).send({ token });
+    });
 
     // services post method
     app.post("/services", async (req, res) => {
